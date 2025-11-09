@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cold Chain Monitoring System</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f5f7ff;
+      color: #333;
+    }
+
+    /* NAVBAR */
+    header {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 16px 50px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      color: white;
+      font-weight: bold;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      list-style: none
+}
+
+.nav-links li a {
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: 0.3s;
+  position: relative;
+}
+
+/* Underline Hover Animation */
+.nav-links li a::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  bottom: -2px;
+  left: 0;
+  background: white;
+  transition: 0.3s;
+}
+
+.nav-links li a:hover::after,
+.nav-links li a.active::after {
+  width: 100%;
+}
+
+/* Smooth Hover Glow */
+.nav-links li a:hover {
+  color: #ffffff;
+  text-shadow: 0px 0px 8px rgba(255,255,255,0.8);
+  transform: translateY(-2px);
+}
+
+    /* HERO SECTION */
+    .hero {
+      height: 65vh;
+      background: url("pexels-tiger-lily-4483775.jpg") center/cover no-repeat;
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding-left: 8%;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+    }
+
+    .hero-text {
+      position: relative;
+      z-index: 2;
+      color: #ffffff;
+      max-width: 600px;
+      text-shadow: 0 0 12px rgba(0,0,0,0.6);
+    }
+
+    .hero-text h1 {
+      font-size: 42px;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .hero-text p {
+      font-size: 18px;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    /* ABOUT SECTION */
+    .content-section {
+      max-width: 1200px;
+      margin: 60px auto;
+      display: flex;
+      gap: 50px;
+      align-items: center;
+      padding: 0 40px;
+    }
+
+    .content-section img {
+      width: 48%;
+      border-radius: 12px;
+      box-shadow: 0px 5px 20px rgba(0,0,0,0.15);
+    }
+
+    .content-text h2 {
+      font-size: 32px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .content-text p {
+      line-height: 1.7;
+      font-size: 17px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="logo">Cold Chain Monitoring System</div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="/">HOME</a></li>
+        <li><a href="/index.html">ADD SENSOR DATA</a></li>
+        <li><a href="/create-shipment.html">ADD SHIPMENT</a></li>
+        <li><a href="/dashboard">DASHBOARD</a></li>
+        <li><span id="userDisplay" style="color:white; font-weight:bold;"></span></li>
+      </ul>
+      
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-text">
+      <h1>Cold Chain Monitoring System</h1>
+      <p>Ensure freshness and safety during storage and transportation of perishable goods with real-time IoT monitoring.</p>
+    </div>
+  </section>
+
+  <section class="content-section">
+    <div class="content-text">
+      <h2>Why Cold Chain Monitoring?</h2>
+      <p>
+        Temperature-sensitive goods like dairy, vaccines, seafood, and fresh produce require controlled environments.
+        This system uses IoT sensors to track data in real-time, prevent spoilage, ensure compliance,
+        and reduce financial losses across the supply chain.
+      </p>
+    </div>
+    <img src="pexels-manduko-17229385.jpg" alt="Cold Storage">
+  </section>
+
+  <script>
+    const current = location.pathname.split("/").pop();
+    document.querySelectorAll("nav a").forEach(link => {
+      if (link.getAttribute("href") === current) {
+        link.classList.add("active");
+      }
+    });
+
+    const username = localStorage.getItem("username");
+  if (username) {
+    console.log("Logged in as:", username);
+  } else {
+    window.location.href = "login.html"; // Force login if no session
+  }
+
+  const userName = localStorage.getItem("username");
+
+  if (userName) {
+    document.getElementById("userDisplay").textContent = `👤 ${userName}`;
+  }
+
+  </script>
+
+</body>
+</html>

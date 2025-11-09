@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Shipment</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex; justify-content: center; align-items: center;
+      min-height: 100vh; margin: 0; padding: 20px;
+    }
+    .form-box {
+      background: white; padding: 30px; border-radius: 12px;
+      max-width: 450px; width: 100%;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+    }
+    h2 { margin-bottom: 15px; }
+    label { font-weight: bold; margin-top: 12px; display: block; }
+    input, select {
+      width: 100%; padding: 10px; border-radius: 8px;
+      border: 1px solid #ccc; margin-top: 6px;
+    }
+    button {
+      width: 100%; margin-top: 20px; padding: 12px;
+      background: #667eea; color: white; border: none;
+      border-radius: 8px; cursor: pointer;
+    }
+    #msg { margin-top: 12px; text-align: center; }
+    .success { color: green; }
+    .error { color: red; }
+    a { display: block; margin-top: 15px; text-align: center; color: #333; }
+  
+    .end-butten{
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .butten{
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .butten-1{
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      display:flexbox;
+      justify-items: center;
+      justify-content: center;
+      align-items: center;
+      justify-content: center;
+      
+    };
+
+</style>
+</head>
+
+<body>
+  <div class="form-box">
+    <li><span id="userDisplay" style="color:white; font-weight:bold;"></span></li>
+    <h2>🚚 Create Shipment</h2>
+
+    <form id="shipForm">
+
+      <label>Product Name</label>
+      <input type="text" id="productName" required />
+
+      <label>Shipment ID (Custom Code)</label>
+      <input type="text" id="shipmentCode" required readonly />
+
+      <label>Start Location</label>
+      <input type="text" id="startLocation" required />
+
+      <label>Destination</label>
+      <input type="text" id="destination" required />
+
+      <label>Status</label>
+      <select id="statusSelect" required>
+        <option value="In Transit">In Transit</option>
+        <option value="Delivered">Delivered</option>
+      </select>
+
+      <button type="submit">Create Shipment</button>
+    </form>
+
+    <div id="msg"></div>
+
+    <div class="end-butten">
+    <a href="dashboard.html" class="butten">📊 Back to Dashboard</a>
+  </div>  
+  <div class="end-butten"><a href="home.html" class="butten-1">👉 Go to Home</a></p>
+  </div>
+</div>
+
+  <script>
+    function generateShipmentID() {
+      const year = new Date().getFullYear();
+      const random = Math.floor(1000 + Math.random() * 9000);
+      return `SH-ID${year}-${random}`;
+    }
+    
+    document.getElementById("shipmentCode").value = generateShipmentID();
+    
+    document.getElementById("shipForm").onsubmit = async (e) => {
+      e.preventDefault();
+    
+      const data = {
+        product_name: document.getElementById("productName").value,
+        shipment_code: document.getElementById("shipmentCode").value,
+        start_location: document.getElementById("startLocation").value,
+        destination: document.getElementById("destination").value,
+        status: document.getElementById("statusSelect").value
+      };
+    
+      const res = await fetch("/api/shipments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      });
+    
+      const result = await res.json();
+      const msg = document.getElementById("msg");
+    
+      if (result.success) {
+        msg.textContent = "✅ Shipment created successfully!";
+        msg.className = "success";
+        document.getElementById("shipForm").reset();
+        
+        // Generate a NEW ID for the next shipment
+        document.getElementById("shipmentCode").value = generateShipmentID();
+      } else {
+        msg.textContent = "❌ Failed to create shipment.";
+        msg.className = "error";
+      }
+    };
+
+    
+  const current = location.pathname.split("/").pop();
+  document.querySelectorAll(".nav-links a").forEach(link => {
+    if (link.getAttribute("href") === current) {
+      link.classList.add("active");
+    }
+  });
+
+  const username = localStorage.getItem("username");
+  if (username) {
+    console.log("Logged in as:", username);
+  } else {
+    window.location.href = "login.html"; // Force login if no session
+  }
+
+  const userName = localStorage.getItem("username");
+
+  if (userName) {
+    document.getElementById("userDisplay").textContent = `👤 ${userName}`;
+  }
+
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Cold Chain Monitoring</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      color: white;
+    }
+
+    .login-box {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 35px 45px;
+      border-radius: 15px;
+      backdrop-filter: blur(12px);
+      text-align: center;
+      width: 350px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+    }
+
+    h2 { margin-bottom: 20px; }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      outline: none;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      background: #7707ef;
+      border: none;
+      color: white;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: 0.3s;
+    }
+
+    button:hover { background: #f1f6f2; 
+    color: #7707ef
+    ;}
+
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Welcome</h2>
+    <p>Enter your details to continue</p>
+
+    <input type="text" id="name" placeholder="Your Name" required />
+    <input type="tel" id="phone" placeholder="Phone Number" maxlength="10" required />
+
+    <button onclick="loginUser()">Login</button>
+  </div>
+
+  <script>
+  async function loginUser() {
+    const name = document.getElementById("name").value.trim();
+    const phone = document.getElementById("phone").value.trim();
+
+    if (name === "" || phone.length !== 10) {
+      alert("Please enter valid details");
+      return;
+    }
+
+    const res = await fetch("/api/users/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, phone })
+    });
+
+    const result = await res.json();
+
+    if (result.success) {
+      localStorage.setItem("username", result.user.name);
+      localStorage.setItem("phone", result.user.phone);
+
+      window.location.href = "home.html";
+    } else {
+      alert("Login Failed");
+    }
+  }
+  </script>
+</body>
+</html>
