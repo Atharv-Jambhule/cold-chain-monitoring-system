@@ -14,8 +14,7 @@ async function loadStats() {
     const data = await res.json();
     
     if (data.success) {
-      const stats = data.stats; // ✅ This matches your API output
-
+      const stats = data.stats;
       document.getElementById('stat-products').textContent = stats.products;
       document.getElementById('stat-storage').textContent = stats.storage_units;
       document.getElementById('stat-shipments').textContent = stats.shipments;
@@ -32,10 +31,9 @@ async function loadStats() {
 async function loadAlerts() {
   const container = document.getElementById('alerts-container');
   try {
-    const res = await fetch('/api/alerts?limit=10');
+    const res = await fetch('/api/alerts/recent?limit=10');
     const data = await res.json();
     
-    // ✅ Use data.data instead of data.alerts
     if (!data.success || data.data.length === 0) {
       container.innerHTML = '<div class="empty-state">No alerts found</div>';
       return;
@@ -68,11 +66,12 @@ async function loadAlerts() {
   }
 }
 
+
 // Load sensor data
 async function loadSensorData() {
   const container = document.getElementById('sensors-container');
   try {
-    const res = await fetch('/api/sensor-data?limit=15');
+    const res = await fetch('/api/sensor-data/latest');
     const data = await res.json();
     
     // ✅ Use data.data instead of data.sensor_data
@@ -145,29 +144,30 @@ async function loadShipments() {
 
               <td>${shipment.product_name || '-'}</td>
 
-              <td>
-                <div class="route-line">
-                  <span>${shipment.start_location || 'Unknown'}</span>
-                  <span class="truck-icon">🚚</span>
-                  <span>${shipment.destination || 'Unknown'}</span>
-                </div>
-              </td>
+           <td>
+  <div class="route-line">
+    <span>${shipment.start_location || 'Unknown'}</span>
+    <div class="route-connector"></div>
+    <span>${shipment.destination || 'Unknown'}</span>
+  </div>
+</td>
 
-              <td>
-                <select class="status-select" onchange="updateShipmentStatus(${shipment.shipment_id}, this.value)">
-                  <option value="In Transit" class="status-transit-option"
-                    ${shipment.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+             <td>
+  <select class="status-select ${shipment.status === 'Delivered' ? 'delivered' : 'transit'}"
+        onchange="updateShipmentStatus(${shipment.shipment_id}, this.value)">
 
-                  <option value="Delivered" class="status-delivered-option"
-                    ${shipment.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
-                </select>
-              </td>
+    <option value="In Transit" ${shipment.status === 'In Transit' ? 'selected' : ''}>In Transit</option>
+    <option value="Delivered" ${shipment.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+  </select>
+</td>
+
 
               <td>${formatDateTime(shipment.departure_time)}</td>
 
               <td>${shipment.arrival_time ? formatDateTime(shipment.arrival_time) : 'In Transit'}</td>
 
-              <td>${shipment.travel_hours || '-'}h</td>
+              <td>${shipment.travel_hours !== null ? shipment.travel_hours + 'h' : '--'}</td>
+
             </tr>
           `).join('')}
         </tbody>
@@ -233,15 +233,18 @@ async function updateShipmentStatus(id, newStatus) {
     const result = await res.json();
 
     if (result.success) {
-      refreshData(); // refresh shipments table + stats
+      showToast("✅ Shipment status updated");
+      loadShipments(); // only reload shipment table (faster)
+      loadStats();     // update shipment count
     } else {
       alert("⚠️ Failed to update shipment status");
     }
   } catch (err) {
-    console.error("Error updating status:", err);
-    alert("❌ Server error while updating status");
+    console.error("Error:", err);
+    alert("❌ Server error");
   }
 }
+
 
 function showToast(text) {
   const msg = document.createElement('div');

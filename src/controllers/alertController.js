@@ -35,18 +35,23 @@ exports.getAlertById = async (req, res, next) => {
   }
 };
 
-// Get recent alerts (24h)
-exports.getRecentAlerts = async (req, res, next) => {
-  try {
-    const alerts = await Alert.findRecent();
-    res.json({
-      success: true,
-      count: alerts.length,
-      data: alerts
-    });
-  } catch (error) {
-    next(error);
-  }
+const db = require('../config/database');
+
+exports.getRecentAlerts = async (req, res) => {
+  const limit = parseInt(req.query.limit) || 10;
+
+  const [rows] = await db.pool.query(`
+    SELECT 
+      a.*,
+      su.name AS storage_name
+    FROM alerts a
+    LEFT JOIN sensordata sd ON a.sensor_id = sd.sensor_id
+    LEFT JOIN storageunit su ON sd.storage_id = su.storage_id
+    ORDER BY a.alert_time DESC
+    LIMIT ?
+  `, [limit]);
+
+  res.json({ success: true, data: rows });
 };
 
 // Get alerts by storage
@@ -122,3 +127,4 @@ exports.deleteAlert = async (req, res, next) => {
     next(error);
   }
 };
+

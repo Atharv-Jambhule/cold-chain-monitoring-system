@@ -3,7 +3,7 @@ const router = express.Router();
 const alertController = require('../controllers/alertController');
 
 // GET routes
-router.get('/', alertController.getAllAlerts);
+router.get('/', alertController.getRecentAlerts);
 router.get('/recent', alertController.getRecentAlerts);
 router.get('/prone-storage', alertController.getMostAlertProneStorage);
 router.get('/storage/:storageId', alertController.getAlertsByStorage);

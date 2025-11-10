@@ -270,6 +270,42 @@
   transition: transform 0.4s ease;  /* flip horizontally */
 }
 
+.route-connector {
+  flex: 1;
+  height: 3px;
+  background: linear-gradient(90deg, #764ba2, #667eea);
+  position: relative;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.route-connector::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 25%;
+  background: white;
+  opacity: 0.7;
+  animation: moveLine 1.5s linear infinite;
+}
+
+@keyframes moveLine {
+  from { transform: translateX(-30%); }
+  to   { transform: translateX(150%); }
+}
+
+.status-select.transit {
+  background: #cce5ff;
+  color: #004085;
+}
+
+.status-select.delivered {
+  background: #d4edda;
+  color: #155724;
+}
+
 
   </style>
 </head>
@@ -279,10 +315,10 @@
       <h1>🌡️ Cold Chain Monitoring Dashboard</h1>
       <div class="nav-buttons">
         <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
-        <a href="/" class="btn btn-primary">➕ Log Sensor Data</a>
+        <a href="/index.html" class="btn btn-primary">➕ Log Sensor Data</a>
         <a href="/create-shipment.html" class="btn btn-primary">➕ Add Shipment</a>
         <a href="home.html" class="btn btn-primary">👉Go to Home</a>
-        <li><span id="userDisplay" style="color:white; font-weight:bold;"></span></li>
+        
       </div>
     </header>
 
@@ -371,12 +407,6 @@
     console.log("Logged in as:", username);
   } else {
     window.location.href = "login.html"; // Force login if no session
-  }
-
-  const userName = localStorage.getItem("username");
-
-  if (userName) {
-    document.getElementById("userDisplay").textContent = `👤 ${userName}`;
   }
 
 </script>
