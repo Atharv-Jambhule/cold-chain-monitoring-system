@@ -1,130 +1,37 @@
 const Alert = require('../models/Alert');
+const db = require('../config/database');
 
-// Get all alerts
-exports.getAllAlerts = async (req, res, next) => {
+// ✅ Get ALL alerts
+exports.getAllAlerts = async (req, res) => {
   try {
     const limit = parseInt(req.query.limit) || 50;
     const alerts = await Alert.findAll(limit);
-    res.json({
-      success: true,
-      message: 'Alerts retrieved successfully',
-      count: alerts.length,
-      data: alerts
-    });
-  } catch (error) {
-    next(error);
+    return res.json({ success: true, data: alerts });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
-// Get alert by ID
-exports.getAlertById = async (req, res, next) => {
-  try {
-    const alert = await Alert.findById(req.params.id);
-    if (!alert) {
-      return res.status(404).json({
-        success: false,
-        message: 'Alert not found'
-      });
-    }
-    res.json({
-      success: true,
-      data: alert
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-const db = require('../config/database');
-
+// ✅ Get RECENT alerts
 exports.getRecentAlerts = async (req, res) => {
   const limit = parseInt(req.query.limit) || 10;
 
-  const [rows] = await db.pool.query(`
-    SELECT 
-      a.*,
-      su.name AS storage_name
-    FROM alerts a
-    LEFT JOIN sensordata sd ON a.sensor_id = sd.sensor_id
-    LEFT JOIN storageunit su ON sd.storage_id = su.storage_id
-    ORDER BY a.alert_time DESC
-    LIMIT ?
-  `, [limit]);
-
-  res.json({ success: true, data: rows });
-};
-
-// Get alerts by storage
-exports.getAlertsByStorage = async (req, res, next) => {
   try {
-    const alerts = await Alert.findByStorageId(req.params.storageId);
-    res.json({
-      success: true,
-      count: alerts.length,
-      data: alerts
-    });
-  } catch (error) {
-    next(error);
+    const [rows] = await db.pool.query(`
+      SELECT a.alert_id, a.sensor_id, a.alert_time, a.message,
+             su.name AS storage_name
+      FROM Alerts a
+      LEFT JOIN SensorData sd ON a.sensor_id = sd.sensor_id
+      LEFT JOIN StorageUnit su ON sd.storage_id = su.storage_id
+      ORDER BY a.alert_time DESC
+      LIMIT ?
+    `, [limit]);
+
+    res.json({ success: true, data: rows });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: "Failed to load alerts" });
   }
 };
-
-// Get most alert-prone storage
-exports.getMostAlertProneStorage = async (req, res, next) => {
-  try {
-    const data = await Alert.getMostAlertProneStorage();
-    res.json({
-      success: true,
-      data: data
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Create manual alert
-exports.createAlert = async (req, res, next) => {
-  try {
-    const alertId = await Alert.create(req.body);
-    const alert = await Alert.findById(alertId);
-    res.status(201).json({
-      success: true,
-      message: 'Alert created successfully',
-      data: alert
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Check expiry alerts (stored procedure)
-exports.checkExpiry = async (req, res, next) => {
-  try {
-    await Alert.checkExpiry();
-    res.json({
-      success: true,
-      message: 'Expiry alerts checked successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-
-// Delete alert
-exports.deleteAlert = async (req, res, next) => {
-  try {
-    const deleted = await Alert.delete(req.params.id);
-    if (!deleted) {
-      return res.status(404).json({
-        success: false,
-        message: 'Alert not found'
-      });
-    }
-    res.json({
-      success: true,
-      message: 'Alert deleted successfully'
-    });
-  } catch (error) {
-    next(error);
-  }
-};
-

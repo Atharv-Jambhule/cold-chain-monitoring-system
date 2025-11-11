@@ -2,18 +2,7 @@ const express = require('express');
 const router = express.Router();
 const alertController = require('../controllers/alertController');
 
-// GET routes
-router.get('/', alertController.getRecentAlerts);
-router.get('/recent', alertController.getRecentAlerts);
-router.get('/prone-storage', alertController.getMostAlertProneStorage);
-router.get('/storage/:storageId', alertController.getAlertsByStorage);
-router.get('/:id', alertController.getAlertById);
-
-// POST routes
-router.post('/', alertController.createAlert);
-router.post('/check-expiry', alertController.checkExpiry);
-
-// DELETE routes
-router.delete('/:id', alertController.deleteAlert);
+router.get('/', alertController.getAllAlerts);       // ✅ /api/alerts
+router.get('/recent', alertController.getRecentAlerts); // ✅ /api/alerts/recent
 
 module.exports = router;

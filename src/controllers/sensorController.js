@@ -61,45 +61,33 @@ exports.getAverageData = async (req, res, next) => {
 exports.createSensorReading = async (req, res, next) => {
   try {
     const { storage_id, temperature, humidity } = req.body;
-
-    if (!storage_id || temperature === undefined || humidity === undefined) {
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required fields: storage_id, temperature, humidity'
-      });
+    if (!storage_id || temperature == null || humidity == null) {
+      return res.status(400).json({ success: false, message: "Missing fields" });
     }
 
     const sensorId = await SensorData.create(req.body);
 
-    // Get context (product + safe range + storage name)
-    const ctx = await SensorData.getSensorContext(sensorId);
-
+    // ✅ Generate alert automatically
+    const context = await SensorData.getSensorContext(sensorId);
     let alertMessage = null;
 
-    if (ctx) {
-      const { product_name, min_temp, max_temp, storage_name } = ctx;
-
-      if (temperature < min_temp || temperature > max_temp) {
-        alertMessage = `⚠️ Temperature Breach in ${storage_name} (Reading: ${temperature}°C, Safe Range: ${min_temp}°C – ${max_temp}°C) for product ${product_name}`;
-
-        await Alert.create({
-          sensor_id: sensorId,
-          message: alertMessage
-        });
-      }
+    if (context && (context.temperature < context.min_temp || context.temperature > context.max_temp)) {
+      alertMessage = `⚠️ Temperature Breach in ${context.storage_name} (Reading: ${context.temperature}°C, Safe Range: ${context.min_temp}°C – ${context.max_temp}°C) for product ${context.product_name}`;
+      await Alert.create({ sensor_id: sensorId, message: alertMessage });
     }
 
-    return res.status(201).json({
+    return res.json({
       success: true,
-      message: 'Sensor data logged successfully',
+      message: "Sensor data logged successfully",
       data: { sensor_id: sensorId, storage_id, temperature, humidity },
       alert: alertMessage
     });
-
   } catch (error) {
     next(error);
   }
 };
+
+
 
 // Get dashboard statistics
 exports.getDashboardStats = async (req, res, next) => {
