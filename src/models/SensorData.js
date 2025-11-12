@@ -84,27 +84,32 @@ class SensorData {
     return rows;
   }
 
-  // ✅ NEW: Get storage + product + safe temperature range for alert message
-  static async getSensorContext(sensor_id) {
-    const [rows] = await db.pool.query(`
-      SELECT 
-        sd.sensor_id,
-        sd.temperature,
-        p.name AS product_name,
-        p.min_temp,
-        p.max_temp,
-        su.name AS storage_name
-      FROM SensorData sd
-      JOIN Shipment s ON sd.storage_id = s.storage_id AND s.status = 'In Transit'
-      JOIN Product p ON s.product_id = p.product_id
-      JOIN StorageUnit su ON sd.storage_id = su.storage_id
-      WHERE sd.sensor_id = ?
-      ORDER BY s.departure_time DESC
-      LIMIT 1
-    `, [sensor_id]);
+  // ✅ UPDATED: Always fetch context (even if shipment not In Transit)
+static async getSensorContext(sensor_id) {
+  const [rows] = await db.pool.query(`
+    SELECT 
+      sd.sensor_id,
+      sd.temperature,
+      p.name AS product_name,
+      p.min_temp,
+      p.max_temp,
+      su.name AS storage_name
+    FROM SensorData sd
+    JOIN StorageUnit su ON sd.storage_id = su.storage_id
+    LEFT JOIN Shipment s ON sd.storage_id = s.storage_id
+    LEFT JOIN Product p ON s.product_id = p.product_id
+    WHERE sd.sensor_id = ?
+    ORDER BY 
+      CASE 
+        WHEN s.status = 'In Transit' THEN 1
+        ELSE 2
+      END,
+      s.departure_time DESC
+    LIMIT 1
+  `, [sensor_id]);
 
-    return rows[0];
-  }
+  return rows[0];
+}
 
 }
 

@@ -31,7 +31,7 @@ async function loadStats() {
 async function loadAlerts() {
   const container = document.getElementById('alerts-container');
   try {
-    const res = await fetch('/api/alerts?limit=10');
+    const res = await fetch('/api/alerts/recent?limit=10'); // ✅ correct route
     const result = await res.json();
 
     if (!result.success || !result.data || result.data.length === 0) {
