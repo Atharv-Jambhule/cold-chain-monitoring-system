@@ -266,12 +266,3 @@ You can test APIs using:
 # 📜 License
 
 This project is developed for academic and educational purposes.
-
----
-
-# ⭐ Acknowledgements
-
-* MongoDB
-* Express.js
-* Node.js
-* Open Source Community
